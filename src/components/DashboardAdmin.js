@@ -258,8 +258,16 @@ const cancelLogout = () => {
       </button>
 
       {showAddProductForm && (
-        <div className="add-product-form">
-          <h2>Adicionar Produto</h2>
+        <div className="add-product-form" style={
+          {
+
+          position: 'absolute',
+          top: '60%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          }
+        }>
+          {/* <h2>Adicionar Produto</h2> */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
