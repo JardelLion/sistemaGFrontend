@@ -14,6 +14,8 @@ import ExportReports from './components/ExportReports';
 import PermissionsManager from './components/PermissionsManager';
 import StockManager from './components/StockManager';
 import EmployeeDataTable from './components/EmployeeDataTable';
+import StockTable from './components/StockTable';
+import SalesHistory from './components/SalesHistory';
 
 const App = () => {
     const [employees, setEmployees] = useState([]);
@@ -48,6 +50,9 @@ const App = () => {
                 <Route path="/export-reports" element={<ExportReports />} />
                 <Route path="/permissions-manager" element={<PermissionsManager />} />
                 <Route path="/stock-manager" element={<StockManager />} />
+                <Route path='/stock-table' element={<StockTable></StockTable>}></Route>
+                <Route path='vendas-pessoais' element={ <SalesHistory/>}></Route>
+        
                 <Route 
                     path="/employee-data-table" 
                     element={

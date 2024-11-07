@@ -9,8 +9,7 @@ const StockManager = ({ onEdit, onDelete }) => {
   const [isAdding, setIsAdding] = useState(false); // Estado para controlar a visibilidade do formulário de adição
   const [editingItem, setEditingItem] = useState(null); // Estado para controlar o item em edição
   const [error, setError] = useState(''); // Estado para armazenar mensagens de erro
-  const token = localStorage.getItem('access'); // Supondo que você armazena o token de acesso no localStorage
-
+ 
 
   // Função genérica para buscar dados
 const fetchData = async (url, setData) => {

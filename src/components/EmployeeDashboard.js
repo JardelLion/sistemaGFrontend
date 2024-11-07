@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'font-awesome/css/font-awesome.min.css';
 import SalesHistory from './SalesHistory';
 import ProductList from './ProductList';
@@ -8,9 +8,18 @@ import Cart from './Cart';
 import '../pages/EmployeeDashboard.css';
 import { useNavigate } from 'react-router-dom';
 import { getResources } from '../services/authService';
+import StockTable from './StockTable';
+
 
 const EmployeeDashboard = () => {
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const sidebarRef = useRef(null);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+}
+  
 
   const [salesData, setSalesData] = useState([]);
   const [productData, setProductData] = useState([]);
@@ -54,9 +63,8 @@ const EmployeeDashboard = () => {
     const fetchAllData = async () => {
       setLoading(true);
       await Promise.all([
-        fetchData(`api/employee/${id}/sales`, setSalesData),
+       // fetchData(`api/employee/${id}/sales`, setSalesData),
         fetchData(`api/products`, setProductData),
-        fetchData(`api/stockmanager`, setStockData),
         fetchData(`api/cart/items/${id}`, setCart)
       ]);
       setLoading(false);
@@ -262,18 +270,33 @@ const confirmLogout = () => {
   
   return (
     <div className="employee-dashboard">
-      <header className="dashboard-header">
-        <h1>
-          <i className="fa fa-user-circle"></i> Painel do Funcionário
-        </h1>
-        <div className="header-icons">
-          <Cart />
-        </div>
-     
-        <button onClick={handleLogout}>
-          <i className="fa fa-sign-out"></i> Logout
-        </button>
-      </header>
+       
+      
+        <header className="dashboard-header">
+          <button onClick={toggleSidebar}>
+            <i className="fa fa-bars"></i> Menu
+          </button>
+          <h1><i className="fa fa-user-circle"></i> Painel do Funcionário</h1>
+          <div className="header-icons">
+            <Cart />
+          </div>
+          <button onClick={handleLogout}>
+            <i className="fa fa-sign-out"></i> Logout
+          </button>
+        </header>
+
+        {isSidebarOpen && (
+          <div className="sidebar" ref={sidebarRef}>
+            <h2>Menu</h2>
+            <ul>
+              <li><a onClick={() => navigate('/vendas-pessoais')}>Vendas pessoais</a></li>
+              <li><a onClick={() => navigate('/stock-table')}>Estoque de Produtos</a></li>
+          
+            </ul>
+            <button onClick={toggleSidebar}>Fechar</button>
+          </div>
+        )}
+       
 
       {loading && (
         <div className="loading-spinner">
@@ -290,8 +313,6 @@ const confirmLogout = () => {
       )}
 
       <div className="dashboard-content">
-        <h2>Vendas Pessoais</h2>
-        <SalesHistory salesData={salesData} />
 
         {/* <h2>Produtos Disponíveis</h2>
         <input
@@ -301,30 +322,6 @@ const confirmLogout = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <ProductList products={filteredProducts}/> */}
-
-        <h2>Estoque</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Qtd</th>
-              <th>Valor de venda</th>
-              <th>Disponível</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stockData.map(item => (
-              <tr key={item.product_id}>
-                <td>{item.product_id}</td>
-                <td>{item.product_name}</td>
-                <td>{item.quantity}</td>
-                <td>{item.price}</td>
-                <td>{item.is_available ? 'Sim' : 'Não'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
         <div className="sales-container">
   <h2 className="section-title">Registrar Venda</h2>

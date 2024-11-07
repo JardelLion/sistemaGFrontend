@@ -144,15 +144,15 @@ const cancelLogout = () => {
   setLogoutConfirmed(false); // Fecha a confirmação de logout
 };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+const toggleSidebar = () => {
+  setIsSidebarOpen(!isSidebarOpen);
+};
 
-  const handleClickOutside = (event) => {
-    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-      setIsSidebarOpen(false);
-    }
-  };
+const handleClickOutside = (event) => {
+  if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+    setIsSidebarOpen(false);
+  }
+};
   
   useEffect(() => {
     if (isSidebarOpen) {
