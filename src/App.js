@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import DashboardAdmin from './components/DashboardAdmin';
 import EmployeeDashboard from './components/EmployeeDashboard';
@@ -20,6 +20,15 @@ import SalesHistory from './components/SalesHistory';
 const App = () => {
     const [employees, setEmployees] = useState([]);
 
+    useEffect(() => {
+        // Verifica se o usuário está logado e tem um papel no localStorage
+        const role = localStorage.getItem('role');
+        if (!role) {
+            // Redireciona para a página de login se não houver papel no localStorage
+            window.location.href = '/';
+        }
+    }, []);
+
     const handleAdd = (newEmployee) => {
         setEmployees((prevEmployees) => [...prevEmployees, newEmployee]);
     };
@@ -34,35 +43,161 @@ const App = () => {
         setEmployees((prevEmployees) => prevEmployees.filter((emp) => emp.id !== id));
     };
 
+    // Componente de proteção de rota
+    const ProtectedRoute = ({ children, roleRequired }) => {
+        const userRole = localStorage.getItem('role');
+
+        if (userRole !== roleRequired) {
+            return <Navigate to="/" />;
+        }
+
+        return children;
+    };
+
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path="/admin-dashboard" element={<DashboardAdmin />} />
-                <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-                <Route path="/sales-stats" element={<SalesStats />} />
-                <Route path="/employee-list" element={<EmployeeList />} />
-                <Route path="/product-list" element={<ProductList />} />
-                <Route path="/financial-report" element={<FinancialReport />} />
-                <Route path="/alerts" element={<Alerts />} />
-                <Route path="/activity-log" element={<ActivityLog />} />
-                <Route path="/employee-sales-history" element={<EmployeeSalesHistory />} />
-                <Route path="/export-reports" element={<ExportReports />} />
-                <Route path="/permissions-manager" element={<PermissionsManager />} />
-                <Route path="/stock-manager" element={<StockManager />} />
-                <Route path='/stock-table' element={<StockTable></StockTable>}></Route>
-                <Route path='vendas-pessoais' element={ <SalesHistory/>}></Route>
-        
-                <Route 
-                    path="/employee-data-table" 
+                
+                {/* Rota protegida para o admin */}
+                <Route
+                    path="/admin-dashboard"
                     element={
-                        <EmployeeDataTable 
-                            employees={employees} 
-                            onEdit={handleEdit} 
-                            onDelete={handleDelete} 
-                            onAdd={handleAdd} 
-                        />
+                        <ProtectedRoute roleRequired="admin">
+                            <DashboardAdmin />
+                        </ProtectedRoute>
+                    }
+                />
+                
+                {/* Rota protegida para o employee */}
+                <Route
+                    path="/employee-dashboard"
+                    element={
+                        <ProtectedRoute roleRequired="employee">
+                            <EmployeeDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Outras rotas */}
+                <Route path="/sales-stats" element={
+                    <ProtectedRoute roleRequired={'admin'}>
+
+                        <SalesStats />
+                    </ProtectedRoute>
+                }
+
+                />
+                    
+                <Route path="/employee-list" element={
+                    <ProtectedRoute roleRequired={'employee'}>
+
+                        <EmployeeList />
+
+                    </ProtectedRoute>}
+                />
+
+                <Route path="/product-list" element={
+                    <ProtectedRoute roleRequired={'admin'}>
+
+                        <ProductList />
+                    </ProtectedRoute>
+                
+                } 
+                    
+                />
+
+                <Route path="/financial-report" element={
+                    <ProtectedRoute roleRequired={"admin"}>
+
+                        <FinancialReport />
+                    </ProtectedRoute>
+                
                     } 
+                    
+                />
+
+                <Route path="/alerts" element={
+                    <ProtectedRoute roleRequired={'admin'}>
+
+                        <Alerts />
+                    </ProtectedRoute>
+                
+                }
+
+                />
+
+                <Route path="/activity-log" element={
+                    <ProtectedRoute roleRequired={"admin"}>
+
+                        <ActivityLog />
+                    </ProtectedRoute>
+                }
+                />
+
+
+                <Route path="/employee-sales-history" element={
+                    <ProtectedRoute roleRequired={'admin'}>
+
+                        <EmployeeSalesHistory />
+                    </ProtectedRoute>
+                    }
+                />
+
+                <Route path="/export-reports" element={
+                    <ProtectedRoute roleRequired={'admin'}>
+
+                        <ExportReports />
+                    </ProtectedRoute>
+                } 
+                
+                />
+
+                <Route path="/permissions-manager" element={
+                    <ProtectedRoute roleRequired={'admin'}>
+
+                        <PermissionsManager />
+                    </ProtectedRoute>
+                } 
+                />
+
+                <Route path="/stock-manager" element={
+                    <ProtectedRoute roleRequired={'admin'}>
+
+                        <StockManager />
+                    </ProtectedRoute>
+                    
+                    } 
+                />
+
+                <Route path="/stock-table" element={
+                    <ProtectedRoute roleRequired={'employee'}>
+
+                        <StockTable />
+                    </ProtectedRoute>
+                } 
+                />
+
+                <Route path="/vendas-pessoais" element={
+                    <ProtectedRoute roleRequired={'employee'}>
+
+                        <SalesHistory />
+                    </ProtectedRoute>
+                }
+                />
+                
+                <Route
+                    path="/employee-data-table"
+                    element={
+                        <ProtectedRoute roleRequired="admin">
+                            <EmployeeDataTable 
+                                employees={employees}
+                                onEdit={handleEdit} 
+                                onDelete={handleDelete} 
+                                onAdd={handleAdd} 
+                            />
+                        </ProtectedRoute>
+                    }
                 />
             </Routes>
         </Router>

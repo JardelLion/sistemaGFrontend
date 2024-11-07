@@ -2,31 +2,39 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import Loading from '../components/Loading'; // Componente de loading
-import { authenticate } from '../services/authService'; // Importa a função authenticate
+import { authenticate } from '../services/authService'; // Função de autenticação
 
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false); // Estado de loading
-    const [errorMessage, setErrorMessage] = useState(''); // Estado para a mensagem de erro
+    const [formData, setFormData] = useState({ username: '', password: '' }); // Usando um estado para os campos
+    const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true); // Ativar o loading
-        setErrorMessage(''); // Limpar a mensagem de erro
+        setLoading(true);
+        setErrorMessage('');
 
         try {
-            // Faz o login e obtém o token e o refresh token
-            const [accessToken, refreshToken, role, employeeId] = await authenticate(username, password);
+            // Tenta autenticar
+            const [accessToken, refreshToken, role, employeeId] = await authenticate(formData.username, formData.password);
             
             if (accessToken && refreshToken) {
-                // Armazene os tokens no localStorage
+                // Armazenar os tokens no localStorage
                 localStorage.setItem('access', accessToken);
                 localStorage.setItem('refresh', refreshToken);
-                localStorage.setItem("employee_id", employeeId)
+                localStorage.setItem('employee_id', employeeId);
+                localStorage.setItem('role', role);
 
-                // Navega para o dashboard correspondente
+                // Navegar para a dashboard com base no papel do usuário
                 if (role === 'admin') {
                     navigate('/admin-dashboard');
                 } else if (role === 'employee') {
@@ -39,7 +47,7 @@ const Login = () => {
             setErrorMessage('Erro ao fazer login. Tente novamente mais tarde.');
             console.error('Erro de autenticação:', error);
         } finally {
-            setLoading(false); // Desativar o loading
+            setLoading(false);
         }
     };
 
@@ -54,9 +62,10 @@ const Login = () => {
                         <div className="input-container">
                             <input
                                 type="text"
+                                name="username"
                                 placeholder="Usuário"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                value={formData.username}
+                                onChange={handleChange}
                                 required
                             />
                             <span className="input-icon">👤</span>
@@ -64,9 +73,10 @@ const Login = () => {
                         <div className="input-container">
                             <input
                                 type="password"
+                                name="password"
                                 placeholder="Senha"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                value={formData.password}
+                                onChange={handleChange}
                                 required
                             />
                             <span className="input-icon">🔒</span>
