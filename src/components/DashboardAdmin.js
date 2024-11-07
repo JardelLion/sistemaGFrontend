@@ -229,6 +229,10 @@ const handleClickOutside = (event) => {
           />
         </div> */}
 
+      <button onClick={() => setShowAddProductForm(true)} className="add-product-button">
+        Adicionar Novo Produto
+      </button>
+
         <ProductDataTable
           products={filteredProductData}
           onEdit={handleEditProduct}
@@ -236,7 +240,7 @@ const handleClickOutside = (event) => {
         />
 
       </div>
-
+      
       {editingEmployee && (
         <EmployeeEditForm
           employee={editingEmployee}
@@ -244,6 +248,8 @@ const handleClickOutside = (event) => {
           onClose={() => setEditingEmployee(null)}
         />
       )}
+
+     
 
       {editingProduct && (
         <ProductEditForm
@@ -253,9 +259,6 @@ const handleClickOutside = (event) => {
         />
       )}
 
-      <button onClick={() => setShowAddProductForm(true)} className="add-product-button">
-        Adicionar Novo Produto
-      </button>
 
       {showAddProductForm && (
         <div className="add-product-form" style={
