@@ -1,32 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { getResources } from '../services/authService';
+import './alerts.css'; // Importa o CSS específico para o componente Alerts
+
+const fetchData = async (url, setData, setLoading, setError) => {
+  try {
+    setLoading(true);
+    const data = await getResources(url);
+    setData(data);
+  } catch (error) {
+    console.error(`Erro ao buscar dados de ${url}:`, error);
+    setError('Ocorreu um erro ao carregar os alertas.');
+  } finally {
+    setLoading(false);
+  }
+};
 
 const Alerts = () => {
   const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const fetchData = async (url, setData) => {
-    try {
-      const data = await getResources(url); // Utilize getResources para obter os dados
-      setData(data);
-    } catch (error) {
-      console.error(`Erro ao buscar dados de ${url}:`, error);
-    }
-  };
-
-  
   useEffect(() => {
-    fetchData('api/notifications', setAlerts); // Chama a função fetchData com a URL e o setter de estado
+    fetchData('api/notifications', setAlerts, setLoading, setError);
   }, []);
-  
 
   return (
     <div className="alerts">
       <h2>Alertas</h2>
-      <ul>
-        {alerts.map((alert, index) => (
-          <li key={index}>{alert.message}</li>
-        ))}
-      </ul>
+      {loading && <p>Carregando alertas...</p>}
+      {error && <p>{error}</p>}
+      <div className="alerts-list">
+        <ul>
+          {alerts.map((alert, index) => (
+            <li key={index}>{alert.message}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

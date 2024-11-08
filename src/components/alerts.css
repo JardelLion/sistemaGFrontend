@@ -1,0 +1,36 @@
+.alerts {
+    padding: 16px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .alerts h2 {
+    margin-bottom: 10px;
+  }
+  
+  .alerts-list {
+    max-height: 300px; /* Define a altura máxima para a lista */
+    overflow-y: auto; /* Exibe a barra de rolagem vertical quando necessário */
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  
+  .alerts-list ul {
+    list-style-type: none; /* Remove os marcadores de lista */
+    padding: 0;
+    margin: 0;
+  }
+  
+  .alerts-list li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    background-color: #ffeb3b; /* Fundo amarelo */
+    color: #ffffff; /* Texto branco */
+  }
+  
+  .alerts-list li:last-child {
+    border-bottom: none; /* Remove a borda inferior do último item */
+  }
+  

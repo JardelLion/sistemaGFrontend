@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import Loading from '../components/Loading'; // Componente de loading
 import { authenticate } from '../services/authService'; // Função de autenticação
 
 const Login = () => {
-    const [formData, setFormData] = useState({ username: '', password: '' }); // Usando um estado para os campos
+    const [formData, setFormData] = useState({ username: '', password: '' });
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
+
+    // Verificar se o usuário já está autenticado ao carregar o componente
+    // Remova ou comente a parte abaixo para não redirecionar automaticamente
+    // useEffect(() => {
+    //     const accessToken = localStorage.getItem('access');
+    //     const role = localStorage.getItem('role');
+    //     if (accessToken && role) {
+    //         navigate(role === 'admin' ? '/admin-dashboard' : '/employee-dashboard');
+    //     }
+    // }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -33,6 +43,10 @@ const Login = () => {
                 localStorage.setItem('refresh', refreshToken);
                 localStorage.setItem('employee_id', employeeId);
                 localStorage.setItem('role', role);
+
+                console.log('Role:', role);
+                console.log('AccessToken:', accessToken);
+                console.log('RefreshToken:', refreshToken);
 
                 // Navegar para a dashboard com base no papel do usuário
                 if (role === 'admin') {

@@ -2,46 +2,50 @@ import React, { useState, useEffect } from 'react';
 import { getResources } from '../services/authService';
 
 const ExportReports = () => {
-  const [hasReports, setHasReports] = useState(false);
+  const [hasSalesData, setHasSalesData] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Função para verificar se os relatórios estão disponíveis
-    const checkReports = async () => {
+    const checkSalesData = async () => {
       try {
-        const result = await getResources('/api/check-reports'); // Usa getResource
-        setHasReports(result.reportsAvailable); // true ou false
+        const result = await getResources('/api/check-daily-sales'); // Verifica dados de vendas diárias
+        setHasSalesData(result.salesAvailable); // true se houver vendas diárias
       } catch (error) {
-        console.error('Erro ao verificar os relatórios:', error);
-        setHasReports(false); // Em caso de erro, desabilita os botões
+        console.error('Erro ao verificar os dados de vendas:', error);
+        setHasSalesData(false);
+      } finally {
+        setLoading(false); // Conclui o carregamento
       }
     };
 
-    checkReports();
+    checkSalesData();
   }, []);
 
+  const downloadFile = (data, filename) => {
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const exportToCSV = async () => {
-    if (!hasReports) return; // Não faz nada se não houver relatórios
+    if (!hasSalesData) return;
     try {
-      const data = await getResources('/api/export-reports?format=csv'); // Usa getResource
-      const url = window.URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'relatorio.csv';
-      a.click();
+      const data = await getResources('/api/export-daily-sales?format=csv', { responseType: 'blob' });
+      downloadFile(data, 'relatorio_vendas_diarias.csv');
     } catch (error) {
       console.error('Erro ao exportar relatório como CSV:', error);
     }
   };
 
   const exportToPDF = async () => {
-    if (!hasReports) return; // Não faz nada se não houver relatórios
+    if (!hasSalesData) return;
     try {
-      const data = await getResources('/api/export-reports?format=pdf'); // Usa getResource
-      const url = window.URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'relatorio.pdf';
-      a.click();
+      const data = await getResources('/api/export-daily-sales?format=pdf', { responseType: 'blob' });
+      downloadFile(data, 'relatorio_vendas_diarias.pdf');
     } catch (error) {
       console.error('Erro ao exportar relatório como PDF:', error);
     }
@@ -49,14 +53,16 @@ const ExportReports = () => {
 
   return (
     <div className="export-reports">
-      <h2>Exportar Relatórios</h2>
-      {hasReports ? (
+      <h2>Exportar Relatórios de Vendas Diárias</h2>
+      {loading ? (
+        <p>Verificando disponibilidade de dados de vendas...</p>
+      ) : hasSalesData ? (
         <>
-          <button onClick={exportToCSV}>Exportar como CSV</button>
-          <button onClick={exportToPDF}>Exportar como PDF</button>
+          <button onClick={exportToCSV}>Exportar Vendas como CSV</button>
+          <button onClick={exportToPDF}>Exportar Vendas como PDF</button>
         </>
       ) : (
-        <p>Nenhum relatório disponível para exportação.</p>
+        <p>Nenhum dado de vendas disponível para exportação hoje.</p>
       )}
     </div>
   );

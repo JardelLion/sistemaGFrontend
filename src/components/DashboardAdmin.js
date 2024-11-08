@@ -4,7 +4,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import SalesStats from './SalesStats';
 import FinancialReport from './FinancialReport';
 import Alerts from './Alerts';
-import TotalInventoryValue from './TotalInventoryValue';
+import TotalInventoryValue from "./TotalInventoryValue"
 import ProfitMargin from './ProfitMargin';
 import ProductDataTable from './ProductDataTable';
 import EmployeeEditForm from './EmployeeEditForm';
@@ -32,6 +32,23 @@ const DashboardAdmin = () => {
   const sidebarRef = useRef();
   const [logoutConfirmed, setLogoutConfirmed] = useState(false);
   const [staticData, setStaticData] = useState(null);
+  const [totalValue, setTotalValue] = useState(0);
+
+  const fetchTotalInventoryValue = async () => {
+    try {
+      const data = await getResources(`api/total-product-value`); // Use getResources para buscar os dados
+      setTotalValue(data.total_stock_value); // Define o valor total do estoque
+    } catch (error) {
+      console.error('Erro ao buscar o valor total do estoque:', error);
+      setError('Não foi possível carregar o valor total do estoque.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTotalInventoryValue();
+  }, []);
 
   const fetchData = async (url, setData) => {
     try {
@@ -79,26 +96,31 @@ const DashboardAdmin = () => {
   
   const handleDeleteProduct = async (id) => {
     try {
-      // Chama a função getResource para deletar o produto
+      // Optimistically remove the product from the UI immediately
+      setProductData((prevProducts) => prevProducts.filter(product => product.id !== id));
+  
+      // Call the function to delete the product from the backend
       await getResources(`api/products/${id}`, 'DELETE');
   
-      // Atualiza os dados do produto após a exclusão
+      // After the delete is successful, fetch updated data (if necessary)
       fetchAllData();
-      setInterval(function(){
-        window.location.reload()
-      }, 1000) // 1 second
+     
     } catch (error) {
-      console.error('Erro ao deletar produto:', error);
-      setError('Não foi possível deletar o produto.'); // Define uma mensagem de erro, se necessário
+  
+      // If deletion fails, rollback the UI change (optional)
+      fetchAllData(); // You can re-fetch the products or restore the deleted item in the state
+      fetchTotalInventoryValue();  
     }
   };
-
+  
+  
   const handleAddProduct = async (newProduct) => {
     try {
       await getResources('api/products/create', 'POST', newProduct);
       fetchData(`api/products`, setProductData);
       setNewProduct({ name: '', description: '', price: '', acquisition_value: '', quantity: '' });
       setShowAddProductForm(false);
+      fetchTotalInventoryValue()
     } catch (error) {
       console.error('Erro ao adicionar produto:', error);
       alert(`Erro ao adicionar produto: ${error.message}`);
@@ -215,7 +237,8 @@ const handleClickOutside = (event) => {
         <SalesStats  staticValue={staticData}/>
         <FinancialReport  finaStatic={staticData}/>
         <Alerts />
-        <TotalInventoryValue />
+        <TotalInventoryValue totalValue={totalValue} />
+
         <ProfitMargin marginStatic={staticData}/>
       </div>
 
@@ -229,9 +252,72 @@ const handleClickOutside = (event) => {
           />
         </div> */}
 
+      <div style={{
+        'position': 'relative'
+      }}>
+        
+        {showAddProductForm && (
+          <div className="add-product-form" style={
+            {
+
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            }
+          }>
+            {/* <h2>Adicionar Produto</h2> */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAddProduct(newProduct);
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Nome"
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Descrição"
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Valor de Venda"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Valor de Aquisição"
+                value={newProduct.acquisition_value}
+                onChange={(e) => setNewProduct({ ...newProduct, acquisition_value: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Quantidade do produto"
+                value={newProduct.quantity}
+                onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
+                required
+              />
+              <button type="submit">Adicionar Produto</button>
+              <button type="button" onClick={() => setShowAddProductForm(false)}>Cancelar</button>
+            </form>
+          </div>
+        )}
       <button onClick={() => setShowAddProductForm(true)} className="add-product-button">
         Adicionar Novo Produto
       </button>
+      </div> 
+
 
         <ProductDataTable
           products={filteredProductData}
@@ -257,65 +343,6 @@ const handleClickOutside = (event) => {
           onUpdate={handleUpdateProduct}
           onClose={() => setEditingProduct(null)}
         />
-      )}
-
-
-      {showAddProductForm && (
-        <div className="add-product-form" style={
-          {
-
-          position: 'absolute',
-          top: '60%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          }
-        }>
-          {/* <h2>Adicionar Produto</h2> */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleAddProduct(newProduct);
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Nome"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Descrição"
-              value={newProduct.description}
-              onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Valor de Venda"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Valor de Aquisição"
-              value={newProduct.acquisition_value}
-              onChange={(e) => setNewProduct({ ...newProduct, acquisition_value: e.target.value })}
-              required
-            />
-            <input
-              type="number"
-              placeholder="Quantidade do produto"
-              value={newProduct.quantity}
-              onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
-              required
-            />
-            <button type="submit">Adicionar Produto</button>
-            <button type="button" onClick={() => setShowAddProductForm(false)}>Cancelar</button>
-          </form>
-        </div>
       )}
     </div>
   );
