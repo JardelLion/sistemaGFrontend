@@ -10,15 +10,6 @@ const Login = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
-    // Verificar se o usuário já está autenticado ao carregar o componente
-    // Remova ou comente a parte abaixo para não redirecionar automaticamente
-    // useEffect(() => {
-    //     const accessToken = localStorage.getItem('access');
-    //     const role = localStorage.getItem('role');
-    //     if (accessToken && role) {
-    //         navigate(role === 'admin' ? '/admin-dashboard' : '/employee-dashboard');
-    //     }
-    // }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,10 +34,6 @@ const Login = () => {
                 localStorage.setItem('refresh', refreshToken);
                 localStorage.setItem('employee_id', employeeId);
                 localStorage.setItem('role', role);
-
-                console.log('Role:', role);
-                console.log('AccessToken:', accessToken);
-                console.log('RefreshToken:', refreshToken);
 
                 // Navegar para a dashboard com base no papel do usuário
                 if (role === 'admin') {
