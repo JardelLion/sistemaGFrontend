@@ -16,6 +16,7 @@ import StockManager from './components/StockManager';
 import EmployeeDataTable from './components/EmployeeDataTable';
 import StockTable from './components/StockTable';
 import SalesHistory from './components/SalesHistory';
+import StockProfile from "./components/StockProfile";
 
 const App = () => {
     const [employees, setEmployees] = useState([]);
@@ -88,6 +89,12 @@ const App = () => {
                 <Route path="/stock-table" element={<ProtectedRoute roleRequired="employee"><StockTable /></ProtectedRoute>} />
                 <Route path="/vendas-pessoais" element={<ProtectedRoute roleRequired="employee"><SalesHistory /></ProtectedRoute>} />
 
+                <Route path='/stocks'
+                element={
+                    <ProtectedRoute roleRequired='admin'>
+                        <StockProfile></StockProfile>
+                    </ProtectedRoute>
+                }></Route>
                 <Route
                     path="/employee-data-table"
                     element={

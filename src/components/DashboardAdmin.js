@@ -10,6 +10,7 @@ import ProductDataTable from './ProductDataTable';
 import EmployeeEditForm from './EmployeeEditForm';
 import ProductEditForm from './ProductEditForm';
 import { getResources } from '../services/authService';
+import StockProfile from "./StockManager";
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
@@ -225,6 +226,7 @@ const handleClickOutside = (event) => {
             <li><a onClick={() => navigate('/employee-list')}>Lista de Funcionários</a></li>
             <li><a onClick={() => navigate('/activity-log')}>Registro de Atividades</a></li>
             <li><a onClick={() => navigate('/employee-sales-history')}>Histórico de Vendas</a></li>
+            <li><a onClick={()=> navigate('/stocks')}>Stocks</a></li>
             <li><a onClick={() => navigate('/export-reports')}>Exportar Relatórios</a></li>
             <li><a onClick={() => navigate('/permissions-manager')}>Gerenciar Permissões</a></li>
             <li><a onClick={() => navigate('/stock-manager')}>Gerenciar Estoque</a></li>
@@ -240,6 +242,7 @@ const handleClickOutside = (event) => {
         <TotalInventoryValue totalValue={totalValue} />
 
         <ProfitMargin marginStatic={staticData}/>
+        {/* <StockProfile></StockProfile> */}
       </div>
 
       <div className="dashboard-lists">
